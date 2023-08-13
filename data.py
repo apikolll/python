@@ -10,7 +10,7 @@ headers = {'Mozilla/5.0 (X11; Linux x86_64; Ubuntu 22.04) AppleWebKit/537.36 (KH
 def yahooFinance(ticker):
     url = f'https://finance.yahoo.com/quote/{ticker}/key-statistics?p={ticker}'
 
-    response = requests.get(url)
+    response = requests.get(url, headers=headers)
     soup = BeautifulSoup(response.text, 'lxml')
     # price = soup.find('fin-streamer', {'data-field': 'regularMarketPrice', 'data-symbol': f'{ticker}'}).text
 
