@@ -16,5 +16,5 @@ sheet = workbook.sheet1
 
 cells = sheet.range("A2:A89")
 
-for cell in cells:
-    print(cell)
+# for cell in cells:
+#     print(cell.value)
