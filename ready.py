@@ -1,6 +1,8 @@
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 from data import *
+import time
+import schedule
 
 scopes = [
     "https://www.googleapis.com/auth/spreadsheets",
@@ -75,6 +77,11 @@ def main():
         sheet.update_acell(f"J{i + 2}", f"{gp}")
 
 
+schedule.every(10).minutes.do(main)
 
-if __name__ == "__main__":
-    main()
+while True:
+    schedule.run_pending()
+    time.sleep(1)
+
+# if __name__ == "__main__":
+#     main()
