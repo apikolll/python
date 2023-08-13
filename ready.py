@@ -51,21 +51,30 @@ def changeFormatYahoo(result):
     else:
         return result
 
-pitchbook = sheet.range("B2:B89")
-yahoo = sheet.range("A2:A89")
 
-for i in range(len(pitchbook)):
-    print(f"Fetching data for {yahoo[i].value}...")
+def main():
 
-    result_pitchbook = pitchBook(pitchbook[i].value)
-    mc = changeFormatPitchbook(result_pitchbook)
-    # gp = changeFormatYahoo(result2)
-    sheet.update_acell(f"D{i + 2}", f"{result_pitchbook['price']}")
-    sheet.update_acell(f"E{i + 2}", f"{mc}")
-    sheet.update_acell(f"F{i + 2}", f"{result_pitchbook['enterpriseValue']}")
-    sheet.update_acell(f"G{i + 2}", f"{result_pitchbook['revenue']}")
-    sheet.update_acell(f"H{i + 2}", f"{result_pitchbook['ebitda']}")
-    sheet.update_acell(f"I{i + 2}", f"{result_pitchbook['netIncome']}")
+    pitchbook = sheet.range("B2:B89")
+    yahoo = sheet.range("A2:A89")
+
+    for i in range(len(pitchbook)):
+        print(f"Fetching data for {yahoo[i].value}...")
+
+        result_pitchbook = pitchBook(pitchbook[i].value)
+        result_yahoo = yahooFinance(yahoo[i].value)
+
+        mc = changeFormatPitchbook(result_pitchbook)
+        gp = changeFormatYahoo(result_yahoo)
+
+        sheet.update_acell(f"D{i + 2}", f"{result_pitchbook['price']}")
+        sheet.update_acell(f"E{i + 2}", f"{mc}")
+        sheet.update_acell(f"F{i + 2}", f"{result_pitchbook['enterpriseValue']}")
+        sheet.update_acell(f"G{i + 2}", f"{result_pitchbook['revenue']}")
+        sheet.update_acell(f"H{i + 2}", f"{result_pitchbook['ebitda']}")
+        sheet.update_acell(f"I{i + 2}", f"{result_pitchbook['netIncome']}")
+        sheet.update_acell(f"J{i + 2}", f"{gp}")
 
 
 
+if __name__ == "__main__":
+    main()
