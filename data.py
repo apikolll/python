@@ -4,12 +4,13 @@ from bs4 import BeautifulSoup
 import requests
 import cloudscraper
 
-headers = {'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36'}
+# headers = {'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36'}
+# headers = {'User-agent':'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36'}
 
 def yahooFinance(ticker):
     url = f'https://finance.yahoo.com/quote/{ticker}/key-statistics?p={ticker}'
 
-    response = requests.get(url, headers=headers)
+    response = requests.get(url)
     soup = BeautifulSoup(response.text, 'lxml')
     # price = soup.find('fin-streamer', {'data-field': 'regularMarketPrice', 'data-symbol': f'{ticker}'}).text
 
