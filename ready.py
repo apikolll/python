@@ -79,7 +79,7 @@ def main():
 
 # schedule.every(10).minutes.do(main)
 
-schedule.every().day.at("00:00").do(main)
+schedule.every().day.at("10:56").do(main)
 
 while True:
     schedule.run_pending()
