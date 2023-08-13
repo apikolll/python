@@ -77,9 +77,9 @@ def main():
         sheet.update_acell(f"J{i + 2}", f"{gp}")
 
 
-# schedule.every(10).minutes.do(main)
+schedule.every(1).minutes.do(main)
 
-schedule.every().day.at("22:58").do(main)
+# schedule.every().day.at("22:58").do(main)
 
 while True:
     schedule.run_pending()
