@@ -66,6 +66,9 @@ def main():
     # time_stamp = sheet.acell("B91")
     time_stamp = timeStamp()
 
+    sheet.update_acell("B94", time_stamp)
+    sheet.update_acell("E94", "Pass")
+
     for i in range(len(pitchbook)):
         print(f"Fetching data for {yahoo[i].value}...")
 
@@ -83,8 +86,6 @@ def main():
         sheet.update_acell(f"P{i + 3}", f"{result_pitchbook['netIncome']}")
         sheet.update_acell(f"N{i + 3}", f"{gp}")
     
-    sheet.update_acell("B94", time_stamp)
-    sheet.update_acell("E94", "Pass")
 
 # schedule.every().day.at("18:50").do(main)
 
