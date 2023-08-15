@@ -13,8 +13,8 @@ scopes = [
 creds = ServiceAccountCredentials.from_json_keyfile_name("./data/creds.json", scopes=scopes)
 
 file = gspread.authorize(creds)
-workbook = file.open("python test")
-sheet = workbook.sheet1
+workbook = file.open("Valuation Database (updated)")
+sheet = workbook.worksheet("Data")
 
 def changeFormatPitchbook(result):
     million = "M"
@@ -61,11 +61,10 @@ def timeStamp():
 
 def main():
 
-    pitchbook = sheet.range("B2:B89")
-    yahoo = sheet.range("A2:A89")
-    time_stamp = sheet.acell("K2")
+    pitchbook = sheet.range("B3:B90")
+    yahoo = sheet.range("E3:E90")
+    # time_stamp = sheet.acell("B91")
     time_stamp = timeStamp()
-    sheet.update_acell("K2", time_stamp)
 
     for i in range(len(pitchbook)):
         print(f"Fetching data for {yahoo[i].value}...")
@@ -76,19 +75,18 @@ def main():
         mc = changeFormatPitchbook(result_pitchbook)
         gp = changeFormatYahoo(result_yahoo)
         
-        sheet.update_acell(f"D{i + 2}", f"{result_pitchbook['price']}")
-        sheet.update_acell(f"E{i + 2}", f"{mc}")
-        sheet.update_acell(f"F{i + 2}", f"{result_pitchbook['enterpriseValue']}")
-        sheet.update_acell(f"G{i + 2}", f"{result_pitchbook['revenue']}")
-        sheet.update_acell(f"H{i + 2}", f"{result_pitchbook['ebitda']}")
-        sheet.update_acell(f"I{i + 2}", f"{result_pitchbook['netIncome']}")
-        sheet.update_acell(f"J{i + 2}", f"{gp}")
-        
+        sheet.update_acell(f"I{i + 3}", f"{result_pitchbook['price']}")
+        sheet.update_acell(f"J{i + 3}", f"{mc}")
+        sheet.update_acell(f"L{i + 3}", f"{result_pitchbook['enterpriseValue']}")
+        sheet.update_acell(f"M{i + 3}", f"{result_pitchbook['revenue']}")
+        sheet.update_acell(f"O{i + 3}", f"{result_pitchbook['ebitda']}")
+        sheet.update_acell(f"P{i + 3}", f"{result_pitchbook['netIncome']}")
+        sheet.update_acell(f"N{i + 3}", f"{gp}")
+    
+    sheet.update_acell("B94", time_stamp)
+    sheet.update_acell("E94", "Pass")
 
-
-schedule.every(2).minutes.do(main)
-
-# schedule.every().day.at("00:00").do(main)
+schedule.every().day.at("00:00").do(main)
 
 while True:
     schedule.run_pending()
