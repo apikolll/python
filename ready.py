@@ -86,11 +86,9 @@ def main():
     sheet.update_acell("B94", time_stamp)
     sheet.update_acell("E94", "Pass")
 
-schedule.every().day.at("00:00").do(main)
+schedule.every().day.at("18:40").do(main)
 
 while True:
     schedule.run_pending()
     time.sleep(1)
 
-# if __name__ == "__main__":
-#     main()
