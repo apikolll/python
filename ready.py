@@ -3,6 +3,7 @@ from oauth2client.service_account import ServiceAccountCredentials
 from data import *
 import time
 import schedule
+import datetime
 
 scopes = [
     "https://www.googleapis.com/auth/spreadsheets",
@@ -53,11 +54,15 @@ def changeFormatYahoo(result):
     else:
         return result
 
+def timeStamp():
+    time_stamp = datetime.datetime.now()
+    return f'{time_stamp.strftime("%A"), time_stamp.strftime("%d"), time_stamp.strftime("%B")}'
 
 def main():
 
     pitchbook = sheet.range("B2:B89")
     yahoo = sheet.range("A2:A89")
+    time_stamp = sheet.acell("K2")
 
     for i in range(len(pitchbook)):
         print(f"Fetching data for {yahoo[i].value}...")
@@ -67,6 +72,7 @@ def main():
 
         mc = changeFormatPitchbook(result_pitchbook)
         gp = changeFormatYahoo(result_yahoo)
+        time_stamp = timeStamp()
 
         sheet.update_acell(f"D{i + 2}", f"{result_pitchbook['price']}")
         sheet.update_acell(f"E{i + 2}", f"{mc}")
@@ -75,11 +81,12 @@ def main():
         sheet.update_acell(f"H{i + 2}", f"{result_pitchbook['ebitda']}")
         sheet.update_acell(f"I{i + 2}", f"{result_pitchbook['netIncome']}")
         sheet.update_acell(f"J{i + 2}", f"{gp}")
+        sheet.update_acell("K2", time_stamp)
 
 
 # schedule.every(1).minutes.do(main)
 
-schedule.every().day.at("00:00").do(main)
+schedule.every().day.at("13:00").do(main)
 
 while True:
     schedule.run_pending()
