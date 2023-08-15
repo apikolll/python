@@ -56,13 +56,16 @@ def changeFormatYahoo(result):
 
 def timeStamp():
     time_stamp = datetime.datetime.now()
-    return f'{time_stamp.strftime("%A"), time_stamp.strftime("%d"), time_stamp.strftime("%B")}'
+    # ts = f'{time_stamp.strftime("%A")}, {(time_stamp.strftime("%b"))} {(time_stamp.strftime("%b"))}, {(time_stamp.strftime("%H"))}:{(time_stamp.strftime("%M"))}'
+    return f'{time_stamp.strftime("%c")}'
 
 def main():
 
     pitchbook = sheet.range("B2:B89")
     yahoo = sheet.range("A2:A89")
     time_stamp = sheet.acell("K2")
+    time_stamp = timeStamp()
+    sheet.update_acell("K2", time_stamp)
 
     for i in range(len(pitchbook)):
         print(f"Fetching data for {yahoo[i].value}...")
@@ -72,8 +75,7 @@ def main():
 
         mc = changeFormatPitchbook(result_pitchbook)
         gp = changeFormatYahoo(result_yahoo)
-        time_stamp = timeStamp()
-
+        
         sheet.update_acell(f"D{i + 2}", f"{result_pitchbook['price']}")
         sheet.update_acell(f"E{i + 2}", f"{mc}")
         sheet.update_acell(f"F{i + 2}", f"{result_pitchbook['enterpriseValue']}")
@@ -81,7 +83,7 @@ def main():
         sheet.update_acell(f"H{i + 2}", f"{result_pitchbook['ebitda']}")
         sheet.update_acell(f"I{i + 2}", f"{result_pitchbook['netIncome']}")
         sheet.update_acell(f"J{i + 2}", f"{gp}")
-        sheet.update_acell("K2", time_stamp)
+        
 
 
 # schedule.every(1).minutes.do(main)
