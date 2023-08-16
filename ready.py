@@ -67,7 +67,7 @@ def main():
     time_stamp = timeStamp()
 
     sheet.update_acell("B94", time_stamp)
-    sheet.update_acell("E94", "Pass")
+    sheet.update_acell("D94", "Pass")
 
     for i in range(len(pitchbook)):
         print(f"Fetching data for {yahoo[i].value}...")
