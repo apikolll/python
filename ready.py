@@ -61,13 +61,12 @@ def timeStamp():
 
 def main():
 
-    pitchbook = sheet.range("B3:B90")
+    pitchbook = sheet.range("B3:B92")
     yahoo = sheet.range("E3:E90")
-    # time_stamp = sheet.acell("B91")
     time_stamp = timeStamp()
 
-    sheet.update_acell("B94", time_stamp)
-    sheet.update_acell("D94", "Pass")
+    sheet.update_acell("B100", time_stamp)
+    sheet.update_acell("D100", "Pass")
 
     for i in range(len(pitchbook)):
         print(f"Fetching data for {yahoo[i].value}...")
