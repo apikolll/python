@@ -62,35 +62,39 @@ def timeStamp():
 def main():
 
     pitchbook = sheet.range("B3:B92")
-    yahoo = sheet.range("E3:E90")
+    yahoo = sheet.range("D3:D90")
     time_stamp = timeStamp()
 
     sheet.update_acell("B100", time_stamp)
-    sheet.update_acell("D100", "Pass")
+    sheet.update_acell("D100", "")
 
-    for i in range(len(pitchbook)):
-        print(f"Fetching data for {yahoo[i].value}...")
+    print("Scraping from yahoo finance started...")
 
-        result_pitchbook = pitchBook(pitchbook[i].value)
+    for i in range(len(yahoo)):
         result_yahoo = yahooFinance(yahoo[i].value)
+        gp = changeFormatYahoo(result_yahoo)
+        sheet.update_acell(f"L{i + 3}", f"{gp}")
+    
+    print("Scraping from yahoo finance completed...")
+
+    print("Scraping from pitchbook started...")
+    for i in range(len(pitchbook)):
+        
+        result_pitchbook = pitchBook(pitchbook[i].value)
 
         mc = changeFormatPitchbook(result_pitchbook)
-        gp = changeFormatYahoo(result_yahoo)
         
-        sheet.update_acell(f"I{i + 3}", f"{result_pitchbook['price']}")
-        sheet.update_acell(f"J{i + 3}", f"{mc}")
-        sheet.update_acell(f"L{i + 3}", f"{result_pitchbook['enterpriseValue']}")
-        sheet.update_acell(f"M{i + 3}", f"{result_pitchbook['revenue']}")
-        sheet.update_acell(f"O{i + 3}", f"{result_pitchbook['ebitda']}")
-        sheet.update_acell(f"P{i + 3}", f"{result_pitchbook['netIncome']}")
-        sheet.update_acell(f"N{i + 3}", f"{gp}")
+        sheet.update_acell(f"H{i + 3}", f"{result_pitchbook['price']}")
+        sheet.update_acell(f"I{i + 3}", f"{mc}")
+        sheet.update_acell(f"J{i + 3}", f"{result_pitchbook['enterpriseValue']}")
+        sheet.update_acell(f"K{i + 3}", f"{result_pitchbook['revenue']}")
+        sheet.update_acell(f"M{i + 3}", f"{result_pitchbook['ebitda']}")
+        sheet.update_acell(f"N{i + 3}", f"{result_pitchbook['netIncome']}")
     
+    print("Scraping from pitchbook completed...")
 
-# schedule.every().day.at("18:50").do(main)
-
-# while True:
-#     schedule.run_pending()
-#     time.sleep(1)
+    sheet.update_acell("D100", "Pass")
+    
 
 if __name__ == "__main__":
     main()

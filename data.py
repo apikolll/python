@@ -8,6 +8,10 @@ headers = {'User-agent':'Mozilla/5.0 (X11; Linux x86_64; Ubuntu 22.04) AppleWebK
 # headers = {'User-agent':'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36'}
 
 def yahooFinance(ticker):
+
+    if ticker == "":
+        return "No value"
+    
     url = f'https://finance.yahoo.com/quote/{ticker}/key-statistics?p={ticker}'
 
     response = requests.get(url, headers=headers)
@@ -20,11 +24,14 @@ def yahooFinance(ticker):
     GP1 = soup.find_all('table', {'class': 'W(100%) Bdcl(c)'})
 
     IS = GP1[7].find_all('tr', {'class': 'Bxz(bb) H(36px) BdB Bdbc($seperatorColor)'})
+    
 
     # ev = EV1.find('td', {'class' : 'Fw(500) Ta(end) Pstart(10px) Miw(60px)'}).text
     # mc = MC1.find('td', {'class' : 'Fw(500) Ta(end) Pstart(10px) Miw(60px)'}).text
     # rv = RV1[6].find('td', {'class': 'Fw(500) Ta(end) Pstart(10px) Miw(60px)'}).text
+
     gp = IS[2].find('td', {'class': 'Fw(500) Ta(end) Pstart(10px) Miw(60px)'}).text
+
     # ebitda = IS[3].find('td', {'class': 'Fw(500) Ta(end) Pstart(10px) Miw(60px)'}).text
     # net = IS[4].find('td', {'class': 'Fw(500) Ta(end) Pstart(10px) Miw(60px)'}).text
 
