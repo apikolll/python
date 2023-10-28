@@ -1,41 +1,21 @@
+import requests
 import gspread
+from bs4 import BeautifulSoup
 from oauth2client.service_account import ServiceAccountCredentials
-from data import *
 import time
-import schedule
-import datetime
 
+headers = {'User-agent':'Mozilla/5.0 (X11; Linux x86_64; Ubuntu 22.04) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36'}
 scopes = [
     "https://www.googleapis.com/auth/spreadsheets",
     'https://www.googleapis.com/auth/drive'
 ]
-
 creds = ServiceAccountCredentials.from_json_keyfile_name("./data/creds.json", scopes=scopes)
 
 file = gspread.authorize(creds)
 workbook = file.open("Valuation Database (updated)")
 sheet = workbook.worksheet("Data")
 
-def changeFormatPitchbook(result):
-    million = "M"
-    billion = "B"
-    trillion = "T"
-
-    if billion in result["marketCap"]:
-        mc = result["marketCap"].split("B")
-        newMC = mc[0].split("$")
-        return float(newMC[1]) * 1000000000
-    elif trillion in  result["marketCap"]:
-        mc = result["marketCap"].split("T")
-        newMC = mc[0].split("$")
-        return float(newMC[1]) * 1000000000000
-    elif million in  result["marketCap"]:
-        mc = result["marketCap"].split("M")
-        newMC = mc[0].split("$")
-        return float(newMC[1]) * 1000000
-    else:
-        return result["marketCap"]
-    
+yahooTicker = sheet.get("D3:D")
 
 def changeFormatYahoo(result):
     million = "M"
@@ -44,57 +24,61 @@ def changeFormatYahoo(result):
 
     if billion in result:
         mc = result.split("B")
-        return float(mc[0]) * 1000000000
+        return '{:,.0f}'.format(float(mc[0]) * 1000000)
     elif trillion in  result:
         mc = result.split("T")
-        return float(mc[0]) * 1000000000000
+        return '{:,.0f}'.format(float(mc[0]) * 1000000000)
     elif million in  result:
         mc = result.split("M")
-        return float(mc[0]) * 1000000
+        return '{:,.0f}'.format(float(mc[0]) * 1000)
     else:
         return result
 
-def timeStamp():
-    time_stamp = datetime.datetime.now()
-    # ts = f'{time_stamp.strftime("%A")}, {(time_stamp.strftime("%b"))} {(time_stamp.strftime("%b"))}, {(time_stamp.strftime("%H"))}:{(time_stamp.strftime("%M"))}'
-    return f'{time_stamp.strftime("%c")}'
 
-def main():
+def main(): 
+    print("Running...")
+    for i in range(len(yahooTicker)):
+        url = f"https://finance.yahoo.com/quote/{yahooTicker[i][0]}/key-statistics?p={yahooTicker[i][0]}"
+        req = requests.get(url, headers=headers)
+        soup = BeautifulSoup(req.text, "lxml")
 
-    pitchbook = sheet.range("B3:B92")
-    yahoo = sheet.range("D3:D90")
-    time_stamp = timeStamp()
+        price = soup.find('fin-streamer', {'data-field': 'regularMarketPrice', 'data-symbol': f'{yahooTicker[i][0]}'}).text
+        EV1 = soup.find('tr', {'class' : 'Bxz(bb) H(36px) BdB Bdbc($seperatorColor) fi-row Bgc($hoverBgColor):h'})
+        MC1 = soup.find('tr', {'class': 'Bxz(bb) H(36px) BdY Bdc($seperatorColor) fi-row Bgc($hoverBgColor):h'})
+        RV1 = soup.find_all('tr', {'class': 'Bxz(bb) H(36px) BdY Bdc($seperatorColor)'})
+        GP1 = soup.find_all('table', {'class': 'W(100%) Bdcl(c)'})
 
-    sheet.update_acell("B100", time_stamp)
-    sheet.update_acell("D100", "")
+        IS = GP1[7].find_all('tr', {'class': 'Bxz(bb) H(36px) BdB Bdbc($seperatorColor)'})
 
-    print("Scraping from yahoo finance started...")
+        ev = EV1.find('td', {'class' : 'Fw(500) Ta(end) Pstart(10px) Miw(60px)'}).text
+        mc = MC1.find('td', {'class' : 'Fw(500) Ta(end) Pstart(10px) Miw(60px)'}).text
+        rv = RV1[6].find('td', {'class': 'Fw(500) Ta(end) Pstart(10px) Miw(60px)'}).text
+        gp = IS[2].find('td', {'class': 'Fw(500) Ta(end) Pstart(10px) Miw(60px)'}).text
+        ebitda = IS[3].find('td', {'class': 'Fw(500) Ta(end) Pstart(10px) Miw(60px)'}).text
+        net = IS[4].find('td', {'class': 'Fw(500) Ta(end) Pstart(10px) Miw(60px)'}).text
 
-    for i in range(len(yahoo)):
-        result_yahoo = yahooFinance(yahoo[i].value)
-        gp = changeFormatYahoo(result_yahoo)
-        sheet.update_acell(f"L{i + 3}", f"{gp}")
-    
-    print("Scraping from yahoo finance completed...")
+        data = {
+            "price": price,
+            "EV": ev,
+            "MC" : mc,
+            "RV": rv,
+            "GP": gp,
+            "EBITDA": ebitda,
+            "NET" : net
+        }
 
-    print("Scraping from pitchbook started...")
-    for i in range(len(pitchbook)):
-        
-        result_pitchbook = pitchBook(pitchbook[i].value)
+        sheet.batch_update([
+                {
+                    'range': f"H{i + 3}:N{i + 3}",
+                    'values': [[f"${price}", changeFormatYahoo(mc), changeFormatYahoo(ev), changeFormatYahoo(rv), changeFormatYahoo(gp), changeFormatYahoo(ebitda), changeFormatYahoo(net)]]
+                }
+            ])
 
-        mc = changeFormatPitchbook(result_pitchbook)
-        
-        sheet.update_acell(f"H{i + 3}", f"{result_pitchbook['price']}")
-        sheet.update_acell(f"I{i + 3}", f"{mc}")
-        sheet.update_acell(f"J{i + 3}", f"{result_pitchbook['enterpriseValue']}")
-        sheet.update_acell(f"K{i + 3}", f"{result_pitchbook['revenue']}")
-        sheet.update_acell(f"M{i + 3}", f"{result_pitchbook['ebitda']}")
-        sheet.update_acell(f"N{i + 3}", f"{result_pitchbook['netIncome']}")
-    
-    print("Scraping from pitchbook completed...")
+        print(f"{yahooTicker[i][0]} completed")
+        time.sleep(2)
 
-    sheet.update_acell("D100", "Pass")
-    
+    print("Completed")
+
 
 if __name__ == "__main__":
     main()
