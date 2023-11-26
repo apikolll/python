@@ -66,7 +66,6 @@ def main():
         gp = IS[2].find('td', {'class': 'Fw(500) Ta(end) Pstart(10px) Miw(60px)'}).text
         ebitda = IS[3].find('td', {'class': 'Fw(500) Ta(end) Pstart(10px) Miw(60px)'}).text
         net = IS[4].find('td', {'class': 'Fw(500) Ta(end) Pstart(10px) Miw(60px)'}).text
-
         data = {
             "price": price,
             "EV": ev,
