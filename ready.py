@@ -4,7 +4,10 @@ from bs4 import BeautifulSoup
 from oauth2client.service_account import ServiceAccountCredentials
 import time
 
+# Headers to allow browser detect as a human not Bot.
 headers = {'User-agent':'Mozilla/5.0 (X11; Linux x86_64; Ubuntu 22.04) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36'}
+
+# Scope is use to connect to google shhet
 scopes = [
     "https://www.googleapis.com/auth/spreadsheets",
     'https://www.googleapis.com/auth/drive'
@@ -17,6 +20,8 @@ sheet = workbook.worksheet("Data")
 
 yahooTicker = sheet.get("D3:D")
 
+
+# Function to change format from received data
 def changeFormatYahoo(result):
     million = "M"
     billion = "B"
@@ -35,6 +40,7 @@ def changeFormatYahoo(result):
         return result
 
 
+# The main function
 def main(): 
     print("Running...")
     for i in range(len(yahooTicker)):
@@ -47,6 +53,10 @@ def main():
         MC1 = soup.find('tr', {'class': 'Bxz(bb) H(36px) BdY Bdc($seperatorColor) fi-row Bgc($hoverBgColor):h'})
         RV1 = soup.find_all('tr', {'class': 'Bxz(bb) H(36px) BdY Bdc($seperatorColor)'})
         GP1 = soup.find_all('table', {'class': 'W(100%) Bdcl(c)'})
+        all = soup.find_all("table", {"class": "W(100%) Bdcl(c)"})
+        IS1 = all[7].find("tbody")
+        quaterlyRevenueGrowth = IS1.find_all("td", {"class" : "Fw(500) Ta(end) Pstart(10px) Miw(60px)"})[2].text
+        leveredFreeCashFlow = all[9].find_all("td", {"class" : "Fw(500) Ta(end) Pstart(10px) Miw(60px)"})[1].text
 
         IS = GP1[7].find_all('tr', {'class': 'Bxz(bb) H(36px) BdB Bdbc($seperatorColor)'})
 
@@ -64,13 +74,15 @@ def main():
             "RV": rv,
             "GP": gp,
             "EBITDA": ebitda,
-            "NET" : net
+            "NET" : net,
+            "QRG": quaterlyRevenueGrowth,
+            "LFCF": leveredFreeCashFlow
         }
 
         sheet.batch_update([
                 {
-                    'range': f"H{i + 3}:N{i + 3}",
-                    'values': [[f"${price}", changeFormatYahoo(mc), changeFormatYahoo(ev), changeFormatYahoo(rv), changeFormatYahoo(gp), changeFormatYahoo(ebitda), changeFormatYahoo(net)]]
+                    'range': f"H{i + 3}:P{i + 3}",
+                    'values': [[f"${price}", changeFormatYahoo(mc), changeFormatYahoo(ev), changeFormatYahoo(rv), changeFormatYahoo(gp), changeFormatYahoo(ebitda), changeFormatYahoo(net), quaterlyRevenueGrowth, changeFormatYahoo(leveredFreeCashFlow)]]
                 }
             ])
 
